@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="sim1" class="com.selenium.ioc.Airtel"> </bean>
+    <bean id="sim2" class="com.selenium.ioc.Vodafone"> </bean>
+
+<!--    <bean id = "student" class="com.selenium.dependency.Student">-->
+<!--        <property name = "studentName" value="Milan Lama"/>-->
+<!--        <property name = "studentID" value="1"/>-->
+<!--    </bean>-->
+
+<!--    <bean id = "student1" class="com.selenium.dependency.Student">-->
+<!--    <constructor-arg name = "studentName" value="Milan Lama" />-->
+<!--    <constructor-arg name = "studentID" value="1" />-->
+<!--    </bean>-->
+
+    <bean id="math" class="com.selenium.dependency.MathCheat"/>
+    <bean id="science" class="com.selenium.dependency.ScienceCheat"/>
+    <bean id="javaCheat" class="com.selenium.dependency.JavaCheat"/>
+
+    <bean id="stu" class= "com.selenium.dependency.Student1">
+        <property name= "cheat" ref="math"/>
+    </bean>
+
+    <bean id="anotherStudent" class="com.selenium.dependency.AnotherStudent">
+    <property name ="cheat" ref="javaCheat"/>
+    </bean>
+
+
+</beans>

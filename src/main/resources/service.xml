@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="dataService" class="com.selenium.loose_coupling.DataService"/>
+    <bean id="missCall" class="com.selenium.loose_coupling.MissCallAlertService"/>
+    <bean id="smsService" class="com.selenium.loose_coupling.SmsPackService"/>
+    <bean id="voiceService" class="com.selenium.loose_coupling.VoicePackService"/>
+
+    <bean id="namaste" class="com.selenium.loose_coupling.NamasteSim">
+    <property name="service" ref="smsService"/>
+    </bean>
+
+</beans>
