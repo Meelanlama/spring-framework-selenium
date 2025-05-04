@@ -1,0 +1,73 @@
+Spring Context: The Core of Spring Framework
+Spring Context is the container that manages the lifecycle and dependencies of beans in a Spring application. It is part of the Spring Core module and is responsible for:
+
+✅ Dependency Injection (DI) – Automatically managing and injecting dependencies.
+✅ Bean Lifecycle Management – Creating, configuring, and destroying beans.
+✅ Event Handling – Publishing and listening for application events.
+✅ Internationalization (i18n) – Handling messages and localization.
+✅ Resource Management – Loading properties files, XML, and classpath resources.
+
+ Key Components of Spring Context
+1️⃣ ApplicationContext Interface (Most Common)
+ApplicationContext is the central interface for accessing the Spring container. It extends BeanFactory (which manages beans) and provides additional features like event propagation and resource handling.
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class SpringContextExample {
+    public static void main(String[] args) {
+        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        MyBean myBean = context.getBean(MyBean.class);
+        myBean.sayHello();
+    }
+}
+
+Here, ApplicationContext loads the beans from AppConfig.class.
+
+2️⃣ Types of ApplicationContext Implementations
+Depending on your application type, you can use different implementations of ApplicationContext:
+
+Implementation					Description
+AnnotationConfigApplicationContext	Used for Java-based configuration (Spring Boot)
+ClassPathXmlApplicationContext		Loads beans from an XML file
+FileSystemXmlApplicationContext	Loads XML bean definitions from a file system path
+WebApplicationContext				Specialized for web applications (Spring MVC)
+
+3️⃣ ApplicationContext vs. BeanFactory
+Feature					ApplicationContext					BeanFactory
+Lazy Initialization	No, beans are initialized eagerly by default	 Yes, beans are created only when needed
+Event Handling	✅ Supports event publishing & listening	❌ No event mechanism
+Internationalization	✅ Supports i18n message sources      ❌ No built-in support
+Resource Management	✅ Can load files, properties, XML	❌ Very limited
+
+Use ApplicationContext for real-world applications. BeanFactory is mainly used for lightweight applications where memory is critical.
+
+4️⃣ Spring Context in Spring Boot
+In Spring Boot, the ApplicationContext is automatically created when you run:
+
+SpringApplication.run(MyApplication.class, args);
+
+Spring Boot uses AnnotationConfigApplicationContext behind the scenes.
+
+//Another:
+
+🔹 Summary
+Spring Context (ApplicationContext) is the heart of Spring.
+It manages beans, handles DI, event propagation, and resource loading.
+Spring Boot automatically initializes the Spring Context.
+Use ApplicationContext, not BeanFactory, for production applications.
+
+
+ApplicationContext  (Root Context)
+   ├── Manages common beans (Services, Repositories)
+   ├── Independent of Web
+   └── Parent of WebApplicationContext
+
+       ↓
+
+WebApplicationContext (Child Context)
+   ├── Inherits from ApplicationContext
+   ├── Manages web-related beans (Controllers, ViewResolvers)
+   ├── Has access to ServletContext
+   └── Used in Spring MVC
+

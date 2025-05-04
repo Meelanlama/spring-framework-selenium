@@ -1,0 +1,63 @@
+AT FIRST,USING JAVA JDBC TO FETCH ALL THE DATA FROM MYSQL.
+
+NOW, LET'S USE SPRING:
+
+In the StudentDAO class all the values are private:
+    private String url;
+    private String userName;
+    private String password;
+
+And we should create setter method to inject.
+
+-- 
+Make Create and Close connection method for easy use and define connection obj in local variable.
+    
+Connection conn;
+
+Anc Call that method 
+
+    public void createStudentConnection() throws ClassNotFoundException, SQLException {
+        //loading driver
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+        //get a connection
+        conn = DriverManager.getConnection(url, userName, password);
+    }
+
+Problem: If i need to create connection for each method like select delete then i need to call this method for all of them and it can be 100 times.
+So utility method needs to call them one by one and there can be many methods.
+
+// Spring
+
+@PostConstruct
+
+Now, Once you create a bean/object of that class.Spring will call the method automatically which has @PostConstruct annotation.
+
+Use <context:annotation-config/> in xml for annotation.
+
+// 
+init() method
+The init() method in a servlet is a lifecycle method defined in the javax.servlet.Servlet interface and is typically used for initialization tasks. When a servlet is instantiated and loaded into the web container (such as Tomcat, Jetty, or WildFly), the container calls the init() method once before the servlet can handle any requests.
+
+--
+When using @PostConstruct, Spring will call init() method for us automatically.
+
+//
+
+ @PostConstruct
+    public void init() throws ClassNotFoundException, SQLException {
+        System.out.println("Inside custom init method");
+        createStudentConnection();
+    }
+
+Now, we create init method and call the method we need.
+
+//STEPS:
+1. Objects created inside the container.
+2. Dependency injection(inject all the dependencies needed) using setter method.
+3. Init method is called.
+
+Use init() method to create connection,socket.
+
+
+

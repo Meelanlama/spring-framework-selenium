@@ -1,0 +1,137 @@
+mvn wrapper:wrapper
+
+We should use this wrapper class in our project. Now, when that person download maven project, he doesn't have to install maven in his pc to run the project.
+
+It's embeded maven version that comes with your project. Doesn't need to have maven install in your pc anymore. But to create embeded mvn version you should have installed it.
+
+// Now, to check if our project is actually a valid maven project?
+
+if you have maven installed then use: - mvn validate
+if embeded maven then use: - mvnw validate
+
+It looks at a pom.xml file and checks if it's a valid xml file.
+
+-----------------------------------------------------------------------------------
+
+// Now, choose a IDE for a project:
+
+Let's look at the pom.xml file:
+
+<groupId>com.jetbrains.marco</groupId>
+    <artifactId>maven-tutorial</artifactId>
+
+- This groupId and artifactId uniquely identify your project among all the project in the world.
+
+ <version>1.0-SNAPSHOT</version>
+
+- SNAPSHOT means working progress and not a release version. can change all the time.
+
+   <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+
+        <junit.version>5.8.2</junit.version>
+    </properties>
+
+- Here saying my project should use java version and can define other versions too.
+
+<build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+        </plugins>
+    </build>
+
+- Maven project can have plugins and those 2 plugins above have something to do with our testings.
+
+    <dependencies>
+<dependency>
+            <groupId>com.mpatric</groupId>
+            <artifactId>mp3agic</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+    </dependencies>
+
+
+Now, this project tutorial uses mp3 so this dependency is the library for checking that mp3 file. Now, my project is dependend on that library of pom.xml
+
+-----------------------------------------------------------------------------------
+
+  <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+      <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+Now, look at this dependecies, this doesn't specify the version of j-unit and it's hardcoded with ${junit.version}. This means we have already declared the version of this above and we are saying they should be of same version(5.8.2).
+
+There's also a scope in dependency(by default hidden) which is compile. Compile means your project needs dependency when you compile, run, do tests,deploy.
+
+Then, there's a test scope. It means this dependency is only for testing. So you can remove this when you deploy.
+
+-----------------------------------------------------------------------------------
+
+So, to check what dependency we need for our project: Look online and check github.
+
+If you're using Intellij, Simply use Alt+ insert or use generate for dependency search and installtion from ide.
+
+-----------------------------------------------------------------------------------
+- mvn clean
+
+What does mvn clean do? it deletes target folder in project
+
+- mvn compile
+
+What does mvn compile do? it looks at src -> main -> java and all your packages(classes inside it) compiles those java classes and puts those compiled classes inside the target folder again.
+
+- mvn compile test
+
+This depends upon compile. It first compile your src-> main java-> all classes. And then looks into src-> main -> test folder and all the test classes. Looks at those test classes and runs them to show you a nice report.
+
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+
+- mvn clean compile test pacakage
+
+This delets your project(target) at first. Compile yours classes test the classes and 
+it'll take your source code and put it into a jar file. And you can send to your friend and he can run in his machine.
+
+- mvn install
+
+Used after mvn clean: at first target folder is deleted. rebuild everything from scratch and install. Jar package is created. It does one more thing: The jar file is 
+being put in your local maven repository.
+
+- What is local maven repository?
+
+Installing D:\Spring\maven-tutorial\pom.xml to C:\Users\Meelan\.m2\repository\com\jetbrains\marco\maven-tutorial\1.0-SNAPSHOT\maven-tutorial-1.0-SNAPSHOT.pom
+
+It inside this folder in my local machine:
+C:\Users\Meelan\.m2\repository
+
+- Where does it all gets the dependencies from?
+ 
+There's one central/global main repository. It ask from this main repository and download from it.
+
+-----------------------------------------------------------------------------------
+
+If have project with many modules then they have one parent pom.xml file which will
+specify all the modules and in the folders they have all their own pom.xml file and they inherit some stuffs from parent pom and can specify their own stuffs.
+
+
+
+
+
+
+

@@ -1,0 +1,15 @@
+ public Student(int studentID, String studentName) {
+        this.studentID = studentID;
+        this.studentName = studentName;
+    }
+ 
+
+//XML
+<bean id = "student" class="com.selenium.dependency.Student">
+    <constructor-arg name = "studentName" value="Milan Tamang" />
+    <constructor-arg name = "studentID" value="1" />
+    </bean>
+
+String is passed as argument for int type in the constructor from XML file.
+
+But internally, Spring will convert that String into int type and then pass it to constructor.

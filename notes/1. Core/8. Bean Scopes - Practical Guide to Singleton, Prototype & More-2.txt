@@ -1,0 +1,189 @@
+4. SESSION SCOPE:
+
+- A new instance of the bean is created for each HTTP session. When a user is logged in we establish session, we create a new instance here and whenever user logs out or session invalidates then only this instance will be destoryed.
+- Limited to web-aware Spring ApplicationContext.
+- Suitable for beans holding session-specific data. Like,To store: User session information.
+
+Code:
+//@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@SessionScope
+public class RequestDataModel {
+
+So, what will happen is for each session, only new object will be created.
+
+http://localhost:8080/demo:
+@ecced89
+
+Here, the object instance won't be created after i refresh the page/make new request, because we're in the same session. After sometime it'll be invalidated. If we want then call invalidate() method in HttpSession.
+If we want new object then make the new call/new session then use in incognito mode.
+
+---------------------------------------------------------------------------------------------
+
+5. Application Scope: 
+
+- This is a global scope,A single instance of the bean is created for the entire Web Application.
+- Limited to web-aware Spring ApplicationContext.
+- Shared across all sessions and requests within the web application.
+
+It also create only a single instance of bean like Singleton. So what's the difference?
+Ans:
+When singleton scope creates an instance, the instance is created per container/ApplicationContext. So different container can have different instance in singleton.
+
+But in APPLICATION SCOPE: As, we know we have A Servlet/Web Context which contains ApplicationContext Container in it. So, When an single instance is created of application scope it's created in a whole ServletContext not in an ApplicationContext. So if you also create different ApplicationContext then it'll also refer to the instance in the Servlet context created previosuly.
+The single instance will only be created one time in ServletContext and shared with all the application context container.
+This will be global to the application.
+
+So, the difference is singleton scope object is single instance per container(ApplicationContext). While, ApplicationScope Object is single instance per Web/Servlet Context(Which includes whole containers/context).
+
+In Java web development, the ServletContext is an object that represents the environment in which a servlet is running. It provides a way for servlets to communicate with the web container (the server) and share information across servlets in the same application. It essentially acts as a bridge between the servlet and the web application's environment.
+
+---------------------------------------------------------------------------------------------
+
+Selinum express ko ma padeko thiyo, Servlet context vaneko whole web application context ho ani Yo servlet context vitra application context haru huncha ani request scope ani session scope ni huncha tara chuttai.
+
+Yes, you're right in a way, but let's clarify the structure a bit:
+
+ServletContext: Represents the entire web application context and is shared across all servlets and JSPs in the application. It provides a way to share data and resources at the application level.
+
+Application Context (within ServletContext): Refers to data that is available throughout the entire web application, typically using the application scope. Data stored here is shared across the entire web application.
+
+Request Scope: Tied to a single HTTP request. The data in request scope is only available for the duration of that request.
+
+Session Scope: Tied to an individual user's session, meaning data in session scope persists across multiple requests from the same user until the session expires or the user logs out.
+
+To Summarize:
+- ServletContext manages the whole web application context (application scope).
+- Request scope and session scope are different and more limited scopes:
+- Request scope is for individual HTTP requests.
+- Session scope is for a specific user’s session.
+- So, ServletContext is the container for application-wide resources, but request and session scopes are separate from it, each with their own lifetimes and contexts. 
+---------------------------------------------------------------------------------------------
+
+Your explanation is correct. Here's a concise summary of the differences:
+
+Singleton Scope:
+- Single instance per Spring ApplicationContext (IoC container).
+- Each container (e.g., root vs. child contexts in a web app) has its own instance.
+
+Application Scope
+- Single instance per Java ServletContext (entire web application).
+- Shared across all ApplicationContexts and user sessions/requests within the same web app.
+
+Key Distinction:
+- Singleton: Bound to a Spring container.
+- Application Scope: Bound to the web app's ServletContext, making it truly global across all containers in that web app.
+
+The ServletContext is indeed a Java EE construct representing the web app's runtime environment, enabling data sharing across all servlets and components.
+
+---------------------------------------------------------------------------------------------
+
+//Code:
+
+@ApplicationScope
+public class RequestDataModel {
+
+So, how to demonstrate this in code? We need two ApplicationContext. So we need to create one web application context manually and check.
+
+@SpringBootApplication
+@ComponentScan(basePackages = {"bean_scopes_demo.model","bean_scopes_demo.controller1"})
+public class ScopeDemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ScopeDemoApplication.class, args);
+    }
+
+    @Bean
+    public ServletRegistrationBean mvc2(){
+        // Creating Web Application Context
+        AnnotationConfigWebApplicationContext webApplicationContext = new AnnotationConfigWebApplicationContext();
+        // Register configuration class
+        webApplicationContext.register(ApplicationConfiguration.class);
+
+        // Create and initialize DispatcherServlet with application context
+        DispatcherServlet dispatcherServlet = new DispatcherServlet(webApplicationContext);
+
+        // Register DispatcherServlet
+        DispatcherServletRegistrationBean servletRegistrationBean =
+                new DispatcherServletRegistrationBean(dispatcherServlet, "/second/*");
+
+        servletRegistrationBean.setName("second");
+
+        return servletRegistrationBean;
+    }
+}
+
+//Config file for creating second servlet context:
+
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = {"bean_scopes_demo.model","bean_scopes_demo.controller2"})
+public class ApplicationConfiguration {
+}
+
+//
+The code creates **two separate servlet-specific application contexts** under a shared root application context. Here's the breakdown:
+
+1. **Root Application Context**:
+   - Created by `@SpringBootApplication` and `SpringApplication.run(...)`.
+   - Scans components from `bean_scopes_demo.model` and `bean_scopes_demo.controller1`.
+
+2. **Servlet-Specific Context** (for the second DispatcherServlet):
+   - Created via `AnnotationConfigWebApplicationContext webApplicationContext = new AnnotationConfigWebApplicationContext()`.
+   - Registered with `ApplicationConfiguration`.
+   - Becomes a **child context** of the root application context.
+   - Serves requests to `/second/*` through its own `DispatcherServlet`.
+
+3. **Default DispatcherServlet** (implicit):
+   - Spring Boot automatically creates a default `DispatcherServlet` mapped to `/` (not visible in the code).
+   - Uses the root application context as its parent.
+
+**Result**:  
+- 1 root application context (shared)  
+- 2 servlet-specific contexts (default + `/second/*`).  
+
+Each servlet has its own isolated context for controller/HTTP-related beans, while sharing the root context's beans (services, repositories, etc.).
+
+// Hamle 2 ota application context banako xau ani tesma chuttai url mapping gareko xa chuttai controller ko jasle same object dincha for Application scope:
+
+### Key Points:
+- Each DispatcherServlet has its own WebApplicationContext.
+- Controllers are only available in the context where they are scanned.
+- URL paths are relative to the servlet's mapping (`/second/*` vs. `/`).
+
+// Prints:
+
+http://localhost:8080/demo -----> RequestDataModel@14226e0e
+http://localhost:8080/second/demo2 ---> RequestDataModel@14226e0e
+
+---------------------------------------------------------------------------------------------
+
+6. WebSocket Scope:
+
+- A new instance of the bean is created for each WebSocket connection/session.
+- Limited to WebSocket-based Applications.
+- Suitable for beans holding Websocket session-specific data.
+
+---------------------------------------------------------------------------------------------
+
+# CHOOSING THE RIGHT SCOPE:
+
+- Consider the lifecyle and state requirements of your beans.
+- Singleton for stateless beans or shared resources.
+- Prototype for stateful beans with unique state.
+- Request and Session scope for web-specific data sharing.
+- Application for data shared across the entire web application.
+- WebSocket for websocket session-specific data.
+
+---------------------------------------------------------------------------------------------
+
+#Best practices and considerations:
+
+- Be cautious when using singleton scope for beans with mutable state.
+- Prototype scope can lead to increased memory usage; use carefully as spring container won't destory the object autoamtically.
+- Avoid excessive reliance on request/session-scoped beans for performance reasons.
+- Test and profile your application to ensure optimal bean scope usage.
+
+#CONCLUSION:
+
+- Understanding and selecting appropriate bean scopes is essential for effective Spring application development.
+- Choose bean scopes based on lifecylce, state and usage requirements to ensure robust and efficient application behaviour.
+

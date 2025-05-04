@@ -1,0 +1,99 @@
+1..
+
+@Component- Creates bean/object of this class inside IOC container.
+public class College{}
+
+@Component("id_name")
+
+if id_name is not provided in component, then the bean id will be same as class name but starts in lowercase. ex: college.
+
+// IN XML:
+    <context:component-scan base-package="com.selenium.Spring_Annotation"/>
+
+Use this context tag in xml file and give pacakage path where to scan annotation.
+Whatever class is inside the package, spring will scan the annotation of those class and create the object of class if found.
+
+If you don't want to use XML(Configuration) file and do everything from java then:
+
+2..
+
+@Configuration- Tells spring this is a configuration class
+
+@Configuration
+@ComponentScan(basePackages = "com.selenium.Spring_Annotation") - Give path of package,
+
+scans the classes in that package and create bean for them.
+public class CollegeConfig {}
+
+//Use this for container instead of new classpath if you dont use XML:     
+AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(CollegeConfig.class)
+
+context.close();
+
+3.. 
+
+IF YOU DON'T WANT TO CREATE BEAN USING COMPONENT TAG IN THE CLASS.THEN:
+
+//
+CREATE THE BEAN INSIDE THE CONFIGURATION CLASS.
+
+@Bean
+
+//IMP
+Create the method that returns object of the class we want to create the bean.
+
+methodName is going to be the bean id/name.
+
+  @Bean
+    public College collegeBean(){
+        College college = new College();
+        return college;
+    }
+
+--Above, creating the bean of College type name collegeBean.
+
+//if you want to create bean with different name then:
+
+  @Bean(name = "beanCollege")
+
+//Multiple Bean Name:
+    
+@Bean(name = {"beanCollege","anotherBean"})
+
+----
+Creating Dependency for College class.
+
+public class College {
+
+    private Principal principal;
+}
+
+To, create the object/bean of college class now we need principal object because it is a dependency of that class.
+
+//Create constructor to inject principal object in college class.
+
+public College(Principal principal) {
+        this.principal = principal;
+    }
+
+At first, principal value is null, so need to inject.
+
+//
+By using constructor injection for dependency in config class:
+
+  College college = new College(principalBean()); //constructor injection
+
+		OR
+return new College(principalBean())
+
+pass the principalBean method in college bean constructor while creating object.
+
+//Using Setter Injection 
+
+-- setterMethod
+  public void setPrincipal(Principal principal) {
+        this.principal = principal;
+    }
+--
+ college.setPrincipal(principalBean()); //Inside the collegeBean Method.
+

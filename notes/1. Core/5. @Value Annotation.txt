@@ -1,0 +1,57 @@
+Loading literal value from a properties file.
+
+--Property file: student-info.properties
+student.name = Milan
+student.course = Java
+student.hobby = Football
+
+Loading value from xml file:
+
+<context:property-placeholder location="student-info.properties"/>
+
+    <bean id="student" class="com.selenium.value_required_annotation.Student">
+    <property name="name" value="${student.name}"/>
+    <property name="hobby" value="${student.hobby}"/>
+    <property name="course" value="${student.course}"/>
+    </bean>
+
+Use context tag and give location of property file.
+And ${property name:};
+
+When setting properties for String,int type use this in XML.
+
+When using maven,always keep files in resources folder.
+
+--
+HOW TO INJECT THE VALUES USING ANNOTATION WITHOUT USING XML FILE.
+
+First, <context:annotation-config/> use this tag in xml to activate annotation.
+
+@VALUE("name");
+
+Then, track something that is required/mandatory.
+
+Important: If something is mandatory like name and course and it's not injected 
+then don't create the bean(object) if mandatory value is not given.
+
+////
+To enforce mandatory values like name and course and ensure the bean is not created if these values are not provided, you can use constructor injection combined with validation annotations (such as @NotNull) in Spring 6. Constructor injection is now the preferred method for enforcing required dependencies.
+
+Example:
+
+// Constructor Injection for mandatory fields
+    public Student(@Value("${student.hobby}") @NonNull String name, @Value("${student.course}") @NonNull String course) {
+        this.name = name;
+        this.course = course;
+    }
+
+    // Setter for optional field
+    @Value("Football")
+    public void setHobby(String hobby) {
+        this.hobby = hobby;
+    }
+
+When creating object, passing value in constructor.
+
+
+

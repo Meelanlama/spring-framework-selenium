@@ -1,0 +1,72 @@
+1. Autowiring in Spring refers to the process of automatically resolving and injecting dependencies into a bean. Instead of explicitly specifying dependencies in a configuration file, Spring can automatically detect and wire the required beans using techniques like:
+
+By Type: Matches beans by their type.
+By Name: Matches beans by their name.
+Constructor: Matches beans using the constructor's parameters.
+
+---------
+2. In Spring, @Autowired is an annotation used for dependency injection. It allows Spring to automatically inject a bean into another bean's field, constructor, or setter method.  
+
+<bean id="heartObject" class="com.selenium.autoWiring.Heart"/>
+
+    <bean id="human" class="com.selenium.autoWiring.Human">
+    <property name="heart" ref="heartObject"/>
+    </bean>
+
+Now, we don't need to set the object explicitly.
+
+Remove the property and reference obj from xml file now.
+Spring will automatically wire up my dependency.
+
+-- Use autowiring
+
+1.autowire = "byName"; //if reference name and id name is same then it'll inject the obj
+
+example:
+private Heart heart; // <bean id="heart"> ,correct way. Id in xml file and dependency variable name should be same.
+
+2.autowire = "byType"; //if class name and object type is same then it'll inject.
+
+Example:
+private Heart heart; // <bean id="heart" class="com.selenium.autoWiring.Heart"/>
+.Heart class and Heart of reference variable is same.
+
+3.autowire="constructor";
+if constructor is present in that class and taking the same object as parameter. Same like setter method.
+
+--Annotation
+
+// @Autowired
+
+ public Human(){
+    }
+
+    @Autowired
+    public Human(Heart heart) {
+        this.heart = heart;
+    }
+
+When using this annotation in constructor and overiding it. The default constructor won't be created and object cannot be created without default constructor.
+
+At first, spring will create object and use default constructor and our object won't be injected or it'll be null.
+
+-- SOLUTION:
+
+Use context in XML
+
+  <context:annotation-config/> // USE THIS to create obj and inject 
+
+To use @Autowired annotation and to call our desired constructor we have to activate it by using <context:annotation-config> on xml file.
+
+We can use @Autowired anno in setterMethod and constructor.
+
+-- How @Autowired works?
+1. First it try to resolve "byType".
+2. If "byType" fails then it goes "byName".
+
+--
+ <bean id="heartObject" class="com.selenium.autoWiring.Heart"/>
+    <bean id="heart" class="com.selenium.autoWiring.Heart"/>
+
+If two id are there then byType fails. Then it'll look for the same name id.
+

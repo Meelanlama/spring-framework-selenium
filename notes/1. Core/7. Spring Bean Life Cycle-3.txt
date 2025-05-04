@@ -1,0 +1,106 @@
+ANOTHER WAY TO ACTIVATE LIFECYCLE ANNOTATION
+
+REMOVING <context:annotation-config/> tag from XML.
+
+Instead of writing that tag, we can initialize CommonAnnotationBeanPostProcessor
+class to activate @PostConstruct/ @PreDestroy annotation.
+
+--- This is another way by adding in XML file:
+<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"> </bean>
+
+CommonAnnotationBeanPostProcessor is a class developed by spring programmers.
+
+
+//DIMAG KHARAB VO: Maven dependency reload garda mysql jar file udxa library bata, so apply the jar file again.
+
+
+// SECTION 2: BEAN LIFE CYCLE WITH XML CONFIGURATION WITHOUT ANNOTATION.
+
+Inside xml file.
+//
+ <bean id ="studentDAO" class="com.selenium.bean_lifecycle.StudentDAO" init-method="init" destroy-method="destroy">
+
+add init-method="method_name" and destory-method="method_name" in xml.
+
+
+// A Common Question for Interview.
+ 
+Qs: What is registerShutdownHook() ?
+
+Ans: It is an alternative way to close the container.
+It does not give error when we create another bean after closing unlike close() method it gives error/exception. We can put this anywhere.
+
+registerShutdownHook() will execute once the main thread ends. so once all your codes gets executed, it will be called and close your container. So it won't give us any exceptions irrespective of the line number we are calling it.
+
+
+//USING AbstractApplicationContext, its same as ApplicationContext
+
+		ApplicationContext ----> INTERFACE
+		     |||
+		AbstractApplicationContext --> Abstract Class
+		     |||
+		
+		ClassPathXmlApplicationContext --> Class
+
+Abstract has registerShutdownHook().
+
+
+//
+Let's analyse a problem.
+What if multiple(100) classes in our project contains init() and destory() methods?
+We may need to define init and destroy in xml for each bean (100 times for 100 beans).
+
+public class Bye {
+    public void init(){
+        System.out.println("Inside bye init");
+    }
+    public void destroy(){
+        System.out.println("Inside bye destroy");
+    }
+}
+
+----
+
+public class Hi {
+    public void init(){
+        System.out.println("Inside hi init");
+    }
+    public void destroy(){
+        System.out.println("Inside hi destroy");
+    }
+}
+
+<bean id ="hi" class="com.selenium.bean_lifecycle.problem.Hi" init-method="init" destroy-method="destroy"/>
+// we need to create 100 beans and define init and destory method in bean like this.
+
+-----
+Solution is define them inside the beans method like this:
+
+ default-init-method="init"
+ default-destroy-method="destroy">
+
+A good habit :keep init() and destroy() method name same for all classes so it's easy.
+
+// IMPORTANT:
+Life Cycle methods are also called as call back methods as these methods are automatically called by the framework.
+
+//
+There are 3 ways to configure life cycle methods in spring.
+1. Annotation
+2. XML 
+3. Configuring bean life cycle by implementing interface
+
+Third one is not recommended but learn it for interview.
+
+// Implementing interface
+public class Bye implements InitializingBean, DisposableBean {
+
+@Override
+    public void afterPropertiesSet() throws Exception {
+sout("This is init() method.")
+}
+
+@Override
+ public void destroy() throws Exception {}
+
+

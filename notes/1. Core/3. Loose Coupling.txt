@@ -1,0 +1,83 @@
+Its a recap of IOC and dependency injection. Create interface and implement it.So,he can take any kind of cheat. Instead of creating and deleting object inside of class.
+
+Loose coupling in Spring refers to the design principle that minimizes dependencies between classes and promotes flexibility in application design. It allows objects to interact with each other while being minimally aware of each other's implementation. This makes it easier to change or replace components without affecting the rest of the application.
+
+//Key Features of Loose Coupling in Spring
+
+1. Use of Dependency Injection (DI):
+
+- Spring achieves loose coupling through DI by injecting dependencies at runtime rather than hardcoding them into the code.
+
+Example:
+
+public class Service {
+    private Repository repository;
+
+    // Constructor Injection
+    public Service(Repository repository) {
+        this.repository = repository;
+    }
+
+    // Setter Injection
+    public void setRepository(Repository repository) {
+        this.repository = repository;
+    }
+}
+
+Here, Repository can be swapped out with any implementation without modifying the Service class.
+
+2. Interfaces and Abstractions:
+
+- Spring encourages programming to interfaces rather than implementations. This means classes depend on abstractions, not concrete classes, further enhancing flexibility.
+
+Example: 
+
+public interface Repository {
+    void save();
+}
+
+public class DatabaseRepository implements Repository {
+    @Override
+    public void save() {
+        System.out.println("Saving to database...");
+    }
+}
+
+public class FileRepository implements Repository {
+    @Override
+    public void save() {
+        System.out.println("Saving to file...");
+    }
+}
+
+3. Spring Configuration (XML or Annotations):
+
+Dependencies are managed outside the classes, either in XML files or through annotations like @Autowired, making the classes independent of how dependencies are resolved.
+
+- XML Example:
+
+<bean id="databaserepository" class="com.example.DatabaseRepository" />
+
+<bean id="service" class="com.example.Service">
+    <constructor-arg ref="databaserepository" />
+</bean>
+
+- Annotation Example:
+
+@Component
+public class Service {
+    @Autowired
+    private Repository repository;
+}
+
+4. Aspect-Oriented Programming (AOP):
+
+AOP in Spring separates cross-cutting concerns (e.g., logging, security) from the business logic, reducing the coupling between these functionalities.
+
+Benefits of Loose Coupling:
+-Flexibility: Components can be easily replaced or updated without affecting others.
+-Testability: Classes are easier to unit test because dependencies can be mocked or stubbed.
+-Maintainability: Changes in one module are less likely to break others.
+-Reusability: Components can be reused across different applications or contexts.
+
+In summary, Spring's loose coupling is primarily enabled through DI and AOP, making it a powerful framework for developing modular and maintainable applications.

@@ -1,0 +1,34 @@
+1.Bean Discovery:
+
+- Spring looks for beans defined in the configuration (either via XML, @Component, @Bean, or other annotations).
+- For example, if you have the following XML:
+<bean id="humanHeart" class="com.example.Heart"/>
+
+Spring identifies humanHeart as a bean of type Heart.
+
+2. Dependency Resolution:
+
+-When Spring encounters the @Autowired annotation, it tries to resolve the dependency by:
+  -Type Matching: Finding a bean that matches the type of the field (Heart in this case).
+  -Qualifier Matching: If a @Qualifier is present, it further narrows the search to the bean with the matching name (humanHeart).
+
+3. Injection Without Setter:
+
+- Spring does not need a setter because it uses Reflection to directly inject the dependency into the private field.
+
+The process can be conceptually represented as:
+
+Heart humanHeart = new Heart(); // Spring creates this instance (or retrieves an existing one).
+private Heart heart = humanHeart; // Spring directly assigns it to the field using Reflection.
+
+//Why is it Called Injection?
+It’s called injection because Spring assigns the reference (humanHeart) into the required field (heart) without you having to write the assignment explicitly.
+
+It’s the framework’s way of "injecting" the dependency into your code.
+
+//
+Dependency injection in Spring involves:
+
+- Creating or retrieving the required bean instance.
+- Referencing that bean (using its identifier or type).
+- Assigning it to the dependent field using Reflection.

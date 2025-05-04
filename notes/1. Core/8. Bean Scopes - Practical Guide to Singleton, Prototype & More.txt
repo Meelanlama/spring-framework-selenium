@@ -1,0 +1,224 @@
+🔍 Topics Covered:
+Singleton Scope: Understand the default scope in Spring, where a single bean instance is shared across the entire application.
+Prototype Scope: Learn about creating new bean instances each time they are requested, ideal for stateful or non-thread-safe beans.
+Request, Session, and Application Scopes: Explore scopes tailored for web applications, managing bean lifecycles within HTTP requests.
+
+//Introduction:
+
+- Spring framework provides various bean scopes, which define the lifecyle(when created or destroyed) and visibility(accessibility) of a bean instance.
+- Understanding bean scopes is crucial for managing dependencies and controlling the behaviour of your Spring application.
+
+// Types of Bean Scopes:
+1. Singleton, 2. Prototype, 3. Request, 4. Session, 5. Application, 6. WebSocket
+
+1. Singleton Scope:
+
+- Only one instance of the bean is created per Spring IOC Container.
+- Same bean is Shared across the entire applicaton.This also save memory.
+- Default scope is "Singleton" if not specified. //imp
+(Scope = "singleton") - When service classes ask for instance/object: Only object will be created per One container and shared accorss app.
+
+Code example:
+
+//
+@Component
+@Scope(value = "singleton)
+public class CacheManager{
+}
+
+//										
+@Component
+public class UserService{
+
+@Autowired
+public CacheManager cacheManager;
+
+public CacheManager getCacheManager(){
+return cacheManager
+}
+}
+
+//
+@Component
+public class AuthenticationService{
+
+@Autowired
+public CacheManager cacheManager;
+
+public CacheManager getCacheManager(){
+return cacheManager
+}
+}
+
+Explain: Now, Spring will create only single object of CacheManager class. And when it's object is needed in another classes or there is dependency of CacheManager. It'll share/inject the same object between them.
+
+// Demo for the above code:
+ ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+
+        //getting bean from the classes
+        AuthenticationService authenticationService = applicationContext.getBean(AuthenticationService.class);
+        UserService userService = applicationContext.getBean(UserService.class);
+
+        //checking if we are injecting same CacheManager object
+        System.out.println(authenticationService.getCacheManager());
+        System.out.println(userService.getCacheManager());
+
+Prints:
+bean_scopes_demo.service.CacheManager@7cc0cdad
+bean_scopes_demo.service.CacheManager@7cc0cdad
+
+Same object instance printed : As it creates only one object and injects it.
+This is called a singleton,saves memory.
+
+---------------------------------------------------------------------------------------------
+
+// DEMO:
+
+public class Demo {
+    public static void main(String[] args) {
+        ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+
+        CacheManager cacheManager = applicationContext.getBean(CacheManager.class);
+        System.out.println(cacheManager); //PRINTS: bean_scopes_demo.service.CacheManager@459e9125
+
+        CacheManager cacheManager2 = applicationContext.getBean(CacheManager.class);
+        System.out.println(cacheManager2); // will return the same instance again: bean_scopes_demo.service.CacheManager@459e9125
+
+        System.out.println("Another container: ");
+
+//Creating another container, so it'll give another instance:
+
+        ConfigurableApplicationContext applicationContext2 = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+
+        CacheManager cacheManager3 = applicationContext2.getBean(CacheManager.class);
+        System.out.println(cacheManager3); //prints: bean_scopes_demo.service.CacheManager@33d512c1
+
+        CacheManager cacheManager4 = applicationContext2.getBean(CacheManager.class);
+        System.out.println(cacheManager4); //will return the same instance again of the same container:  bean_scopes_demo.service.CacheManager@33d512c1
+        
+    }
+}
+
+---------------------------------------------------------------------------------------------
+
+//Interview Question:
+
+What's the difference between the singleton object created by the spring container and the singleton object created by you?
+
+Answer: Singleton object created by Spring is single instance/object per container.If we have multiple container then we have multiple singleton object per container.
+Where as singleton object created by me is, I make singleton towards the application: It's lifecylce will be one per JVM. Singleton object created by me is one instance per JVM.
+When JVM is shutdown singleton object created by me will be destoryed where as when Container shutdown singleton object created by spring will be destroyed.
+
+---------------------------------------------------------------------------------------------
+
+2. Prototype Scope:
+
+- A new instance of the bean is created whenever it is requested. Whenever we request, Spring container will provide new object for prototype class.
+- Not shared; Each client receives a new instance.
+- Useful for stateful beans or beans with mutable state. Example: Whenever we need to create a new object and then modify that object like setting some properties.
+So in this scenario, we make class prototype.
+
+If we make CacheManager class as "Prototype" then Spring container will always create a new object. And when service classes is requesting for object, it'll always inject new object.
+
+We need to manually destory the object of this scope. As, it won't be destoryed by container automatically.
+
+//CODE DEMO: Service classes same as above note in singelton
+
+@Component
+@Scope(value = "prototype")
+public class CacheManager {
+
+}
+
+//
+public class Demo {
+    public static void main(String[] args) {
+        ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+
+        //getting bean from the classes
+        AuthenticationService authenticationService = applicationContext.getBean(AuthenticationService.class);
+        UserService userService = applicationContext.getBean(UserService.class);
+
+        //checking if we are injecting same CacheManager object, here it's prototype so we should get different object of cachemanager
+        System.out.println(authenticationService.getCacheManager());
+        System.out.println(userService.getCacheManager());
+    }
+
+It prints differnet instances of CacheManager as it created different objects for different classes using "prototype":
+bean_scopes_demo.service.CacheManager@459e9125
+bean_scopes_demo.service.CacheManager@128d2484
+
+---------------------------------------------------------------------------------------------
+
+3. Request Scope: This scope works only with web applications.
+
+- A new instance of the bean is created for each HTTP request. Whenever client is requesting.
+- Limited to web-aware Spring ApplicationContext.
+- Suitable for beans holding request-specific data.
+Creates new object for each request and provide new object. We modify it according to our neeeds. Destroyed by container after the HTTP request.
+
+Code: Used Spring boot for ease, run the Spring boot app: and add localhost:8080/handelerMethod name:
+
+//
+@SpringBootApplication
+public class ScopeDemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ScopeDemoApplication.class, args);
+    }
+}
+
+//
+@RestController
+public class DemoController {
+
+    @Autowired
+    private RequestDataModel requestData;
+
+    @GetMapping("/demo")
+    private String getObject(){
+        return requestData.toString();
+//prints: bean_scopes_demo.RequestScope.RequestDataModel@7b722542
+    }
+}
+
+//
+@Component
+public class RequestDataModel {
+    private String requestId;
+    private String requestData;
+	
+	//GETTERS SETTERS
+}
+
+
+http://localhost:8080/demo: 
+@3d487f14: it returns object instance and with default scope(singleton) refreshing the url: the object instance won't be changed.
+
+//By default when we only give @Scope(value = "request") in class, it'll give us error because we are injecting the request data into a singleton bean, and singleton bean won't change because it's same for the one container. But request data has to be always changed for new HTTP request. So, Singleton refering request data,it's not possible practically.
+
+So, the solution is proxy, it won't create the data for request object directly, instead it'll create a proxy for request data and inject that proxy object into request data.
+The proxy will make the call and forward the request to actual requestData.
+
+// @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class RequestDataModel {
+
+Now, for every request the new object instance will be created. And getting destroyed after called/getting response.
+
+We can see if its getting destroyed or not by using LifeCycle Method:
+Add this is in RequestDataModel:
+
+@PreDestroy
+    public void destroy(){
+        System.out.println("RequestDataModel is destroyed");
+    }
+
+// Now, after we refresh the page/get response that object will be destoryed automatically by container in Response Scope. 
+
+//We have the shortcut annotation if we want to combine the value="request" and proxymode.
+Use @RequestScope; it'll internally cover proxymode too.
+
+---------------------------------------------------------------------------------------------
+
+
+
+

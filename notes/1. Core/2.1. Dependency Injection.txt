@@ -1,0 +1,60 @@
+Dependency injection means simply injecting all dependency needed by using Spring.
+By Using Setter Or Constructor Injection.
+
+Depends upon many things. If all the things are fullfilled then I'm happy and chill.
+To fly abroad i need passport. passport is dependency to travel.
+To drive bike i need license. License is dependency to ride bike.
+I should have name and home number, name and home number is my dependency.
+
+class Me{
+
+String name;
+int homNo;
+Family f;
+Job j;
+ArrayList<Integer> impNumber;
+
+}
+
+The variables inside the Me class, All of them are dependencies.
+If my object need to created. Then name,homeNo, Family,Job,passportNo,licenseNo should be also initialized. 
+
+Example:
+
+class Me{
+
+String name = "Milan";
+int homNo = 123;
+Family f = new Family();
+Job j = new Job();
+ArrayList<Integer> impNumber = new ArrayList<>();
+impNumber.add(7777);
+impNumber.add(1223);
+
+}
+
+The above example is hard coding. We don't need to hardcode like the above.
+Tell spring and all dependency injecting is done.
+
+String,int = Dependencies in form of literals
+Family f, Job j = Dependecies in form of objective
+ArrayList<Integer> impNumber = Dependecies in form of Collections
+
+//xml
+ <bean id = "student" class="com.selenium.dependency.Student">
+   <property name = "studentName" value="Milan Tamang"/>
+    <property name = "studentID" value="1"/>
+   </bean>
+
+Internally, At first object is created and value is passed:
+Student student = new Student(); //creating object
+student.setStudentName("Milan Tamang");
+student.setStudentID("1");
+
+//Proving that Spring is internally using setter method for injecting.
+If setter method is removed, then it won't inject and give errors.
+
+
+
+
+

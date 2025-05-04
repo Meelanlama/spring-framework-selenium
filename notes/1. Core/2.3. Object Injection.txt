@@ -1,0 +1,61 @@
+// MathCheat math = new MathCheat();
+using new keyword is not good in spring for creating object. It's tight coupling.
+Should avoid using new keyword.
+
+//To achieve loose copuling : 
+
+MathCheat math; // By default, value will be null.
+
+Now, To inject/create the object using setter method. Create setter method..
+We created two objects of  student and mathcheat.
+As, student is dependent upon mathcheat object to cheat.
+
+Student1 st = new Student1();
+MathCheat cheat = new MathCheat();
+        st.setMath(cheat);
+        st.cheating();
+
+public void setMath(MathCheat math) {
+        this.math = math;
+    }
+
+
+// Object creation and setting object is done by Spring.
+
+public class Student1 {
+
+    MathCheat math;
+
+math is a inner bean...
+
+//XML FILE
+
+<bean id="stu" class= "com.selenium.dependency.Student1">
+        <property name= "math">
+            <bean class="com.selenium.dependency.MathCheat"> </bean>
+        </property>
+    </bean>
+
+In this method, for creating one student object, mathcheat object is also being created inside it. If 100 students are cheating then 100 mathcheat object will be created/needed along the student. 
+So, we use another good approach.
+
+// Internally,
+Student stu = new Student();
+MathCheat math = new MathCheat();
+stu.setMathCheat(math);
+
+2.. THERE'S A GOOD APPROACH:
+
+We'll only create only one mathcheat object and reference with other students that are dependent.
+
+<bean id="math" class="com.selenium.dependency.MathCheat"> </bean>
+//Here mathcheat object is created only one time.
+
+<bean id="stu" class= "com.selenium.dependency.Student1">
+        <property name= "math" ref="math"/>
+    </bean>
+
+// Now referencing that object created to all the class that are dependent using ref.
+
+At first, create object that is needed/dependecy of another class.And then create object of that class, set method for that object and pass the reference id in xml file.
+

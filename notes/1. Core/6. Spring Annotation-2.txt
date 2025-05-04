@@ -1,0 +1,74 @@
+Using interfaces:
+
+ //Interface variable
+    private Teacher teacher;
+
+//Creating Teacher Type Bean
+
+@Bean
+    public Teacher mathTeacherBean(){
+        return new MathTeacher(); 
+    }
+
+ Creating mathTeacherBean which implements teacher interface.
+
+-- Now again using @Component
+
+@Component
+public class College {
+
+@Autowired
+    private Principal principal;
+@Autowired
+    private Teacher teacher;
+@Value("Sagarmatha")
+    private String collegeName;
+
+-- Whichever class is dependent of college, now add @Component in that class too otherwise it'll give null pointer error. as object is not created for that clas.
+Teacher is interface so,add in class that implements this interface.
+
+@Component
+public class MathTeacher implements Teacher
+
+@Component
+public class Principal
+
+--Using component only creates object of that class but it don't inject in the dependency class.
+
+Now, Use @Autowired annotation to inject.
+We don't need setter method when using @Autowired for injection.
+
+@Autowired is for object injection..
+
+@Value is for literal (String/int) types.
+
+-- To read the values from the properties file.
+We need to define this tag above in config class:
+@PropertySource("classpath:college-info.properties")
+
+Why classpath written?
+In short, classpath: allows Spring to locate resources that are bundled within the application (usually under src/main/resources), ensuring proper loading during application startup.
+
+--Many implementation of interfaces:
+
+As we have Teacher interface and if we have two classes(science and math teacher)
+that implements them.
+
+It gives error as we cannot inject the teacher object.
+
+Use this:
+
+//Interface variable
+    @Autowired
+    @Qualifier("scienceTeacher")
+    private Teacher teacher;
+
+//IMP
+@Primary
+If there's many classes thats implementing the interface then use @Primary, it will make that object primary and inject first.
+
+@Component
+@Primary
+public class MathTeacher implements Teacher{}
+
+Now, always the primary object will inject in dependency.

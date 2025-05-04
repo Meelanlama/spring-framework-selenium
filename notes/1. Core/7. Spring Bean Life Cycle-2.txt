@@ -1,0 +1,43 @@
+// Introducing @PreDestroy
+
+closing the connection using destroy.
+
+   @PreDestroy
+    public void closeStudentConnection() throws SQLException {
+        System.out.println("Closing connection");
+        //used for cleanup 
+        conn.close();
+    }
+
+@PreDestroy method will be called before the bean is removed from the container.
+
+//Important:
+Remember that the destroy method will be only called once your container object got destroyed/closed.
+
+Why spring is not calling our custom destroy method?? 
+What kind of application we're working??
+
+When working with desktop app, we should manually close it.
+When working with web app, framework will automatically close the container.
+
+//
+@PreDestroy
+    public void destroy() throws SQLException {
+        System.out.println("Destroying connection");
+        closeStudentConnection();
+    }
+
+// destory container object
+//closing the container object manually
+        
+context.close();
+
+LICECYCLE:
+1. CONTAINER STARTED.
+2. BEAN INSTANTIATED
+3. DEPENDECNY INJECTED
+4. YOUR CUSTOM INIT()- @PostConstruct METHOD
+5. BEAN IS READY TO USE
+6. CONTAINER SHUTDOWN
+7. YOUR CUSTOM DESTORY()- @PreDestroy METHOD
+8. STOP

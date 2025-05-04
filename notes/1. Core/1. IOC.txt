@@ -1,0 +1,70 @@
+SPRING INVERSION OF CONTROL:
+- Creating object for us
+- Managing our objects
+- Helping our application to be configurable
+- Managing dependencies
+
+Spring IOC is a container which creates and manages the objects looking into the configuration file for the classes mentioned in it.
+Spring bean are the objects created by IOC and stored there and ready for using directly in our methods using getBean() method of Spring.
+
+Don't touch the source code. The app should be configurable..
+Spring can create objects for you and manage it.
+If you want to create objects than name it in .cofig file. 
+It has ioc container and doesnt depend on anybody. This container will read a config and create and manage objects for you.
+
+Beans are objects that are inside ioc container.
+All the objects spring creates and manages inside the ioc container are spring beans.
+
+//Method
+use getBean("Object_Name");
+
+Two Types of IOC container:
+
+1. BeanFactory - Less features(Deprecated)
+2. ApplicationContext - Advanced Features
+
+Both containers are also interface.
+
+ClassPathXmlApplicationContext is implementing ApplicationContext. 
+//  ApplicationContext context = new ClassPathXmlApplicationContext("xml file name.xml);
+
+and create the xml file frem src and give class path that you want to create object of in xml file.
+for tracking the reference of object of that class use id tag in xml file.
+now container will read config file and create object class and give reference from id.
+
+Beans is object that spring ioc container manages.
+
+After that class path and id is given in xml file.
+It creates object of that class in container.
+
+// What is happening internally?
+Application context is reading the file --->  <bean id="airtel" class="com.selenium.ioc.Airtel"> </bean>
+and creating airtel objects in the container. given id name is object name.
+
+Now use getBean("objectname") method.
+
+//App configuration without touching source code
+Now use interface variable
+
+<bean id="sim" class="com.selenium.ioc.Vodafone"> </bean>
+
+//Internally,
+Sim sim = new Vodafone(); //object of vodafone with Sim reference is created.
+
+use id of the interface, here we are using sim interface.
+If user change sim than change class to "Airtel","Jio" instead of vodafone sim.
+
+Sim sim = context.getBean("sim",Sim.class);
+        sim.calling();
+        sim.data();
+
+//Previously we should create object of each class manually like.
+Airtel airtel = new Airtel();
+Vodafone voda = new Vodafone();
+
+Now just give reference variable of interface and the class they need in xml file.
+And object would be created by ioc container of that class.
+
+//
+At last, XML FILE will validate the tag we write by XSD and track the tag.
+

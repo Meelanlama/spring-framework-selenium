@@ -1,0 +1,189 @@
+## WATCH THAT YT VIDEO FIRST: YOU WILL UNDERSTAND.
+
+// What is an Early Instantiation?
+
+- Early Instantiation refers to the process of creating Spring beans at the time of application context startup only. During that time only it scans all the beans and create the object at the startup only. Even though we are not using it, it creates and store them in memory.
+- When the Spring container initializes, it creates and initializes all beans defined in the application context, whether they are immediately needed or not.
+
+// What is Lazy Instantiation?
+
+- Lazy Instantiation refers to the process of creating Spring beans only when they are first request for use. It won't take action until it's required. For example: When component needs object or the object needs another object then only spring ioc container will create the object and provide to other beans/
+- Unlike "Early instantiation", where beans are initialized at applicaton startup. "Lazy instantiation" defers bean creation until they are actually needed during runtime.
+
+---------------------------------------------------------------------------------------------
+// During Spring Ioc Container startup:
+
+In spring IOC Container:
+
+EmailService -> (scope = "singleton") || LoggingService -> (scope = "singleton"),
+
+Now emailService and loggingService object will be created in container during the startup.
+Important, if it's singleton by default it will be Early Instantiation.
+
+// Here, if EmailService -> (scope = "singleton" Lazy = true),  is Lazy Instantiated and it won't create object of EmailService during container startup until it's needed/requested.
+Lazy is created during the runtime not server/container startup.
+
+---------------------------------------------------------------------------------------------
+
+// Default behaviour:
+
+- Singleton beans are eagerly instantiated by default, but you can change this behaviour to Lazy Instantiation if needed.
+- Other scope beans(like prototype and others: created only when needed) are lazy instantiated by default, and you cannot change this default behaviour to early. It aligns with their scope definitions, and Spring Framework does not provide a direct mechanism to override this behaviour to eagerly instantiate them.
+
+---------------------------------------------------------------------------------------------
+
+// What can you do to make singleton beans(by deafult early) to be lazily instantiated?
+
+# If we want to make all the singleton beans to be lazily instantiated then:
+
+- For Java Configuration: (This is for @Beans)
+@Configuration
+@Lazy
+public class ApplicationConfiguration{
+
+- For annotation based configuration, we can use @Lazy annotation on the configuration class level. (This is for @Component class)
+@ComponentScan(lazyInit = true)
+public class ApplicationConfiguration{
+
+# If you want to make some specific bean only to be lazily instantiated then use @Lazy annotation as shown below:
+
+- For Java:
+@Bean
+@Lazy
+public EmailService getEmailService(){
+return new EmailService();
+}
+
+- For annotation based:
+@Component
+@Lazy
+public class LoginService{
+
+# If you make some beans only to be early instantiated in configuration but you defined all the beans to be lazily instantiated by default then use:
+
+@Bean
+@Lazy(value = false)
+
+@Component
+@Lazy(value=false)
+
+This is will override that behaviour.
+
+---------------------------------------------------------------------------------------------
+
+Now,let's write some code:
+
+//
+@Component
+public class LoggingService {
+
+    public LoggingService() {
+        System.out.println("LoggingService created");
+    }
+}
+
+// We haven't used component here but defined this as @Bean in config
+public class EmailService {
+    public EmailService() {
+        System.out.println("Email Service created);
+    }
+}
+
+//
+@Configuration
+@ComponentScan(basePackages = "bean_instantiation")
+public class ApplicationConfiguration {
+
+    @Bean
+    public EmailService emailService() {
+        return new EmailService();
+    }
+}
+
+//
+public class DemoRun {
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context =
+                new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+    }
+}
+
+Prints: Email Service created, LoggingService created: As both object are created
+
+Now, here what will happen if we run the application: Objects of LoggingService and EmailService will created at the time of container startup. This is early instantiated as they are singleton beans by default.
+
+So, if we want EmailService to be lazily instantiated: As i don't want to create this object at startup because i want email obj to be only needed when trying to send Email. So use this,
+
+ @Lazy
+ @Bean
+    public EmailService emailService() {
+        return new EmailService();
+    }
+
+
+Now, Email is set to lazy so it only creates object of LoggingService during startup.
+
+If we want emailService object to  be created when it's @Lazy, then requesting it in container will only create it's bean. In application config requesting:
+
+context.getBean("emailService");
+
+---------------------------------------------------------------------------------------------
+
+@Configuration
+@ComponentScan(basePackages = "bean_instantiation",lazyInit = true)
+@Lazy
+public class ApplicationConfiguration {
+
+    @Bean
+    public EmailService emailService() {
+        return new EmailService();
+    }
+}
+
+// here, this code will make all the @Beans/@Component lazily instantiated. As @ComponentScan(lazyInit = true) will make all classes lazy and @Lazy in config file will make all @Bean lazy.
+Now, when it's run No object will be created. Only when requested it'll create Like above we requested email and created it.
+
+//Requesting to create:
+
+context.getBean("emailService");
+context.getBean(LoggingService.class);
+
+---------------------------------------------------------------------------------------------
+
+Now, we have a requriement, make login service only to be "Early" as we made all the services are "Lazy":
+
+@Component
+@Lazy(value = false)
+public class LoggingService {
+
+---------------------------------------------------------------------------------------------
+
+@Component
+public class UserService{
+    private EmailService emailService;
+    private LoggingService loggingService;
+
+    public UserService(EmailService emailService, LoggingService loggingService) {
+        this.emailService = emailService;
+        this.loggingService = loggingService;
+
+        System.out.println("UserService is created with other class needed.." );
+        System.out.println(emailService);
+        System.out.println(loggingService);
+    }
+
+//    public UserService() {
+//        System.out.println("UserService created");
+//    }
+}
+
+As, we already made all the Beans Lazy in config file. So this UserService is also lazily instantiated. So inorder to create object for it we have to make request:
+        
+context.getBean(UserService.class);
+
+When we make request: we have default construtor in UserService class. to it'll only create object for this class.
+We have another classes also they are defined as lazy to it won't be created as they're not needed as there's default constructor to make object of UserService class.
+
+When we comment default construtor and add construtor with other lazy classes object needed when creating  UserService object then only it'll create object for all the classes.As the object of other class obj is required here. If the object of lazy classes is not needed then it won't create it. It's same like prototype scope.
+
+

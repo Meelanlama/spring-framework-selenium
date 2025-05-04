@@ -1,0 +1,35 @@
+--FOR Primitive type and String type autowiring is not possible.
+As spring cannot think of the data we need to enter.
+So use <property name="nameOfPerson" value= "Milan Tamang">
+
+Autowiring is possible only for objects.
+
+1. If both "byName" and "byType" fails than use @Qualifier after autowired.
+
+@Autowired
+@Qualifier("id_name") 
+
+
+--- If the above annotation is written before the dependency then no need for setter method.
+Example:
+
+@Autowired
+@Qualifier("humanHeart") 
+    private Heart heart;
+
+//
+
+@Autowired doesn't need a setter to do the dependecny injection.
+
+Doubt: Then how is it working? How is dependency injection done?
+
+Simple:
+@Autowired
+@Qualifier("humanHeart") -> if match found for humanHeart in xml file then directly create object and inject that to the dependecy called heart.
+    private Heart heart;
+
+Example: Heart humanHeart = new Heart(); created via xml
+
+if found by autowired then in class dependency:
+Heart heart = humanHeart; //Injected that found obj in the dependency
+
